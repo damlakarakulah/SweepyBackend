@@ -23,6 +23,7 @@ router.post('/login', async (req, res) => {
     }
 
 });
+
 router.get('/getUserInfo', async (req, res) => {
     const authHeader = req.headers.authorization;
 
