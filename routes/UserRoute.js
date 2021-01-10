@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
 
 });
 
-router.put('/getUserInfo', async (req, res) => {
+router.get('/getUserInfo', async (req, res) => {
     const authHeader = req.headers.authorization;
 
     const decodedToken = jwt.verify(authHeader, 'mero');
@@ -67,6 +67,14 @@ router.put('/getUserInfo', async (req, res) => {
                 }
             }
         }
+
+        let user = await User.findOneAndUpdate({username: username}, {favs : user2.favs}, {
+            new: true,
+            upsert: true
+        });
+
+        res.json({user});
+
 
 
     } else {
