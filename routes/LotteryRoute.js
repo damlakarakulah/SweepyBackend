@@ -83,7 +83,7 @@ router.post('/getLotteriesOf', async (req, res) => {
 
 router.post('/post', (req, res) => {
     const body = req.body;
-    const lottery = new Lottery ({ name: body.name,category: body.category, link: body.link, photo_link: body.photo_link });
+    const lottery = new Lottery ({ name: body.name,category: body.category, link: body.link, photo_link: body.photo_link, isFaved: body.isFaved });
     lottery.save();
     res.json(body);
 });
