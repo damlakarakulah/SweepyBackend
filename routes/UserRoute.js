@@ -50,22 +50,32 @@ router.get('/getUserInfo', async (req, res) => {
 
 });
 
-router.post('/signup', (req, res) => {
+router.post('/signup', async (req, res) => {
     const body = req.body;
-    const userDoc = new User({username: body.username,email: body.email, password: body.password, favs: []});
-    if( body.password.length <= 10 && body.password.length >= 4  ){
+    let tempUsername = body.username;
+    let tempEmail = body.email;
+
+    let user = await User.findOne({username: tempUsername});
+    let user2 = await User.findOne({email: tempEmail});
+    if(user){
+        res.json({
+            message: "Bu kullanıcı adı zaten mevcut.",
+            status: 0
+        });
+    }
+    else if(user2){
+        res.json({
+            message: "Bu e-mail ile eşleşmiş bir kullanıcı zaten mevcut.",
+            status: 0
+        });
+    }
+    else{
+        const userDoc = new User({username: tempUsername, email: body.email, password: body.password, favs: []});
         userDoc.save();
         res.json({
-            message: "Kayıt Oluşturuldu",
+            message: "Kayıt oluşturuldu.",
             status: 1
         });
-        return;
-    }else{
-        res.json({
-        message: "Şifreniz 4 ile 10 karakter arasında olmalıdır",
-        status: 0
-    });
-
     }
 
 });
