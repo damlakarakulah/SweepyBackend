@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
 
 });
 
-router.get('/getUserInfo', async (req, res) => {
+router.put('/getUserInfo', async (req, res) => {
     const authHeader = req.headers.authorization;
 
     const decodedToken = jwt.verify(authHeader, 'mero');
