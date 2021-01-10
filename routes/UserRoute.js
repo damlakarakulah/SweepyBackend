@@ -25,6 +25,18 @@ router.post('/login', async (req, res) => {
 
 });
 
+function contains(list, name){
+    var i;
+    for(i=0; i<list.length; i++){
+        if(list[i]._doc.name === name){
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
 router.get('/getUserInfo', async (req, res) => {
     const authHeader = req.headers.authorization;
 
@@ -40,31 +52,13 @@ router.get('/getUserInfo', async (req, res) => {
 
         var i;
         var j;
-        for (i = 0; i < lotteries.length; i++) {
-            const name = lotteries[i].name;
-            for(j = 0; j<lotteries2.length; j++) {
-                if(name === lotteries2[j].name){
-                    lotteries2[j].isFaved = true;
-
-                    let user = await User.findOneAndUpdate({username: username}, {favs : user2.favs}, {
-                        new: true,
-                        upsert: true
-                    });
-
-                    res.json({user});
-                    return;
-                }
-                else{
-                    lotteries2.splice(user2.favs[j],1);
-
-                    let user = await User.findOneAndUpdate({username: username}, {favs : user2.favs}, {
-                        new: true,
-                        upsert: true
-                    });
-
-                    res.json({user});
-                    return;
-                }
+        for (i = 0; i < lotteries2.length; i++) {
+            const name = lotteries2[i].name;
+            if(contains(lotteries, name)){
+                lotteries2[i].isFaved = true;
+            }
+            else {
+                lotteries2.splice(user2.favs[i],1);
             }
         }
 
@@ -74,7 +68,6 @@ router.get('/getUserInfo', async (req, res) => {
         });
 
         res.json({user});
-
 
 
     } else {
