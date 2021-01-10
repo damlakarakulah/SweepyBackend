@@ -25,7 +25,7 @@ router.put('/setFaved', async (req, res) => {
             if(isFaved) {
                 if(tempLottery) {
                     if(!tempList.includes(tempLottery)) {
-                        tempLottery._doc.isFaved = true;
+                        tempLottery.isFaved = true;
                         tempList.push(tempLottery);
                     }
                 }
@@ -33,7 +33,7 @@ router.put('/setFaved', async (req, res) => {
             else {
                 if(tempLottery) {
                     if(tempList.in(tempLottery))
-                        tempLottery._doc.isFaved = false;
+                        tempLottery.isFaved = false;
                     tempList.splice(tempLottery, 1);
                 }
             }
@@ -45,19 +45,38 @@ router.put('/setFaved', async (req, res) => {
             return;
         }
     } else {
-        res.status(403).json({message: 'Unauthorized'});
+        res.status(200).json({message: 'Unauthorized'});
     }
 
 });
 
 
 
-router.post('/getLotteriesOf', async (req, res) => {
+router.get('/getLotteriesOf', async (req, res) => {
     const authHeader = req.headers.authorization;
     const {category} = req.body;
 
     if (authHeader) {
+        const decodedToken = jwt.verify(authHeader, 'mero');
+        const username = decodedToken.username;
+
+        const user = await User.findOne({username: username})
         let lotteries = await Lottery.find({category: category});
+        let lotteries2 = await user.favs;
+
+        var i;
+        var j;
+        for (i = 0; i < lotteries.length; i++) {
+            const name = lotteries[i].name;
+            for(j = 0; j<lotteries2.length; j++) {
+                if(name === user.favs[j].name){
+                    lotteries[i].isFaved = true;
+                }
+                else{
+                    lotteries[i].isFaved = false;
+                }
+            }
+        }
         res.json({lotteries});
         return;
     } else {
@@ -74,11 +93,7 @@ router.post('/post', (req, res) => {
 
 router.get('/getAllLotteries', async (req, res) => {
     const authHeader = req.headers.authorization;
-    const category = req.params.category;
-    /*res.json({message: category})
-    return;
 
-     */
     if (authHeader) {
         const decodedToken = jwt.verify(authHeader, 'mero');
         const username = decodedToken.username;
@@ -87,13 +102,24 @@ router.get('/getAllLotteries', async (req, res) => {
 
         if (user) {
             let lotteries = await Lottery.find();
+            let lotteries2 = await user.favs;
 
             var i;
+            var j;
             for (i = 0; i < lotteries.length; i++) {
-                lotteries[i]._doc.isFaved = user.favs.includes(lotteries[i]);
+                const name = lotteries[i].name;
+                for(j = 0; j<lotteries2.length; j++) {
+                    if(name === user.favs[j].name){
+                        lotteries[i].isFaved = true;
+                    }
+                    else{
+                        lotteries[i].isFaved = false;
+
+                    }
+                }
             }
 
-            res.json({lotteries});
+            res.json(lotteries);
             return;
         }
     } else {
