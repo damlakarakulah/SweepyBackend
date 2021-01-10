@@ -11,7 +11,7 @@ router.post('/login', async (req, res) => {
     if (user && user.password === password) {
         const token = jwt.sign({ username: user.username }, 'mero');
         res.json({
-            message: "Giriş Yapıldı",
+            message: "Giriş Yapıldi",
             token: token,
             status: 1
         });
@@ -54,14 +54,7 @@ router.post('/signup', (req, res) => {
     const body = req.body;
     const userDoc = new User({username: body.username,email: body.email, password: body.password, favs: []});
     if( body.password.length <= 10 && body.password.length >= 4  ){
-        userDoc.save(function(err) {
-            if (err) {
-                if (err.name === 'MongoError' && err.code === 11000) {
-                    // Duplicate username
-                    return res.status(200).json({message: 'Bu kullanıcı adı zaten mevcut.',status:0});
-                }
-            }
-        });
+        userDoc.save();
         res.json({
             message: "Kayıt Oluşturuldu",
             status: 1
