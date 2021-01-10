@@ -32,10 +32,12 @@ router.put('/setFaved', async (req, res) => {
             }
             else {
                 if(tempLottery) {
-                    if(tempList.in(tempLottery))
+                    if(tempList.in(tempLottery)){
                         tempLottery.isFaved = false;
-                    tempList.splice(tempLottery, 1);
+                        tempList.splice(tempLottery, 1);
+                    }
                 }
+
             }
             let user = await User.findOneAndUpdate({username: username}, {favs : tempList}, {
                 new: true,
