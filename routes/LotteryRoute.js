@@ -32,7 +32,7 @@ router.put('/setFaved', async (req, res) => {
             }
             else {
                 if(tempLottery) {
-                    if(tempList.in(tempLottery)){
+                    if(tempList.includes(tempLottery)){
                         tempLottery.isFaved = false;
                         tempList.splice(tempLottery, 1);
                     }
