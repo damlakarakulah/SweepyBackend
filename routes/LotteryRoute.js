@@ -17,14 +17,20 @@ router.put('/setFaved', async (req, res) => {
         const username = decodedToken.username;
         const tempUser = await User.findOne({username: username});
 
+        const tempLottery = await Lottery.findById(_id);
+
+
         if (tempUser) {
             const tempList = tempUser.favs;
             if(isFaved) {
-                tempList.push(_id);
+                if(tempLottery) {
+                    tempList.push(tempLottery);
+                }
             }
             else {
-                const id = tempList.indexOf(_id);
-                tempList.splice(id,1);
+                if(tempLottery) {
+                    tempList.splice(tempLottery, 1);
+                }
             }
             let user = await User.findOneAndUpdate({username: username}, {favs : tempList}, {
                 new: true,
@@ -34,7 +40,7 @@ router.put('/setFaved', async (req, res) => {
             return;
         }
     } else {
-        res.status(403).json({message: 'Unauthorized'});
+        res.status(200).json({message: 'Unauthorized'});
     }
 
 });
@@ -79,7 +85,7 @@ router.get('/getAllLotteries', async (req, res) => {
 
             var i;
             for (i = 0; i < lotteries.length; i++) {
-                lotteries[i]._doc.isFaved = user.favs.includes(lotteries[i]._id);
+                lotteries[i]._doc.isFaved = user.favs.includes(lotteries[i]);
             }
 
             res.json({lotteries});
