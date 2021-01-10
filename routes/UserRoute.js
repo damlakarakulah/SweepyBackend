@@ -30,12 +30,12 @@ router.get('/getUserInfo', async (req, res) => {
     const decodedToken = jwt.verify(authHeader, 'mero');
     const username = decodedToken.username;
 
-    const user = await User.findOne({ username: username });
+    const user2 = await User.findOne({ username: username });
 
 
-    if (user) {
+    if (user2) {
         let lotteries = await Lottery.find();
-        let lotteries2 = await user.favs;
+        let lotteries2 = await user2.favs;
 
         var i;
         var j;
@@ -46,18 +46,18 @@ router.get('/getUserInfo', async (req, res) => {
                     lotteries2[j].isFaved = true;
                 }
                 else{
-                    lotteries2.splice(user.favs[j],1);
+                    lotteries2.splice(user2.favs[j],1);
                 }
             }
         }
 
 
-        let user2 = await User.findOneAndUpdate({username: username}, {favs : lotteries2}, {
+        let user = await User.findOneAndUpdate({username: username}, {favs : lotteries2}, {
             new: true,
             upsert: true
         });
 
-        res.json({user2});
+        res.json({user});
         return;
 
     } else {
