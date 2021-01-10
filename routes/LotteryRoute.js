@@ -24,20 +24,15 @@ router.put('/setFaved', async (req, res) => {
             const tempList = tempUser.favs;
             if(isFaved) {
                 if(tempLottery) {
-                    if(!tempList.includes(tempLottery)) {
-                        tempLottery.isFaved = true;
-                        tempList.push(tempLottery);
-                    }
+                    tempLottery.isFaved = true;
+                    tempList.push(tempLottery);
                 }
             }
             else {
                 if(tempLottery) {
-                    if(tempList.includes(tempLottery)){
-                        tempLottery.isFaved = false;
-                        tempList.splice(tempLottery, 1);
-                    }
+                    tempLottery.isFaved = false;
+                    tempList.splice(tempLottery, 1);
                 }
-
             }
             let user = await User.findOneAndUpdate({username: username}, {favs : tempList}, {
                 new: true,
