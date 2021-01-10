@@ -119,7 +119,7 @@ router.get('/getAllLotteries', async (req, res) => {
                 }
             }
 
-            res.json(lotteries);
+            res.json({lotteries});
             return;
         }
     } else {
