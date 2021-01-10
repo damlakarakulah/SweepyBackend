@@ -11,7 +11,7 @@ router.post('/login', async (req, res) => {
     if (user && user.password === password) {
         const token = jwt.sign({ username: user.username }, 'mero');
         res.json({
-            message: "Başarılı",
+            message: "Giriş Yapılıyor",
             token: token,
             status: 1
         });
@@ -56,7 +56,7 @@ router.post('/signup', (req, res) => {
     if( body.password.length <= 10 && body.password.length >= 4  ){
         userDoc.save();
         res.json({
-            message: "Başarılı",
+            message: "Kayıt Oluşturuldu",
             status: 1
         });
         return;
