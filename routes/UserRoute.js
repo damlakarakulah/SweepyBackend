@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('./UserDocument');
+const Lottery = require('./LotteryDocument');
 
 const router = express.Router();
 var jwt = require('jsonwebtoken');
