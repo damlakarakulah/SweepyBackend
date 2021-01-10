@@ -52,9 +52,22 @@ router.get('/getUserInfo', async (req, res) => {
 
 router.post('/signup', (req, res) => {
     const body = req.body;
-    const userDoc = new User({username: body.username, password: body.password, favs: []});
-    userDoc.save();
-    res.json(body);
+    const userDoc = new User({username: body.username,email: body.email, password: body.password, favs: []});
+    if( body.password.length <= 10 && body.password.length >= 4  ){
+        userDoc.save();
+        res.json({
+            message: "Başarılı",
+            status: 1
+        });
+        return;
+    }else{
+        res.json({
+        message: "Şifreniz 4 ile 10 karakter arasında olmalıdır",
+        status: 0
+    });
+
+    }
+
 });
 
 module.exports = router;
