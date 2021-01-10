@@ -24,11 +24,16 @@ router.put('/setFaved', async (req, res) => {
             const tempList = tempUser.favs;
             if(isFaved) {
                 if(tempLottery) {
-                    tempList.push(tempLottery);
+                    if(!tempList.includes(tempLottery)) {
+                        tempLottery._doc.isFaved = true;
+                        tempList.push(tempLottery);
+                    }
                 }
             }
             else {
                 if(tempLottery) {
+                    if(tempList.in(tempLottery))
+                        tempLottery._doc.isFaved = false;
                     tempList.splice(tempLottery, 1);
                 }
             }
@@ -40,7 +45,7 @@ router.put('/setFaved', async (req, res) => {
             return;
         }
     } else {
-        res.status(200).json({message: 'Unauthorized'});
+        res.status(403).json({message: 'Unauthorized'});
     }
 
 });

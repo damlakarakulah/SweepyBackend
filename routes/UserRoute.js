@@ -32,7 +32,16 @@ router.get('/getUserInfo', async (req, res) => {
 
     const user = await User.findOne({ username: username });
 
+
+
     if (user) {
+        let lotteries = await user.favs;
+
+        var i;
+        for (i = 0; i < lotteries.length; i++) {
+            lotteries[i]._doc.isFaved = user.favs.includes(lotteries[i]);
+        }
+
         res.json({user});
     } else {
         res.json({message: 'Böyle bir kullanıcı bulunamadı.'});
