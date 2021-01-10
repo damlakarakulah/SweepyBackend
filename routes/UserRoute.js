@@ -34,14 +34,30 @@ router.get('/getUserInfo', async (req, res) => {
 
 
     if (user) {
+        let lotteries = await Lottery.find();
         let lotteries2 = await user.favs;
 
+        var i;
         var j;
-        for(j = 0; j<lotteries2.length; j++) {
-            lotteries2[j].isFaved = true;
+        for (i = 0; i < lotteries.length; i++) {
+            const name = lotteries[i].name;
+            for(j = 0; j<lotteries2.length; j++) {
+                if(name === lotteries2[j].name){
+                    lotteries2[j].isFaved = true;
+                }
+                else{
+                    lotteries2.splice(user.favs[j],1);
+                }
+            }
         }
 
-        res.json({user});
+
+        let user2 = await User.findOneAndUpdate({username: username}, {favs : lotteries2}, {
+            new: true,
+            upsert: true
+        });
+
+        res.json({user2});
         return;
 
     } else {
@@ -49,7 +65,6 @@ router.get('/getUserInfo', async (req, res) => {
     }
 
 });
-
 router.post('/signup', async (req, res) => {
     const body = req.body;
     let tempUsername = body.username;
