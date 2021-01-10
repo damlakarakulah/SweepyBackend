@@ -54,7 +54,14 @@ router.post('/signup', (req, res) => {
     const body = req.body;
     const userDoc = new User({username: body.username,email: body.email, password: body.password, favs: []});
     if( body.password.length <= 10 && body.password.length >= 4  ){
-        userDoc.save();
+        userDoc.save(function(err) {
+            if (err) {
+                if (err.name === 'MongoError' && err.code === 11000) {
+                    // Duplicate username
+                    return res.status(200).json({message: 'Bu kullanıcı adı zaten mevcut.',status:0});
+                }
+            }
+        });
         res.json({
             message: "Kayıt Oluşturuldu",
             status: 1
