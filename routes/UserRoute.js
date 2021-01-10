@@ -65,6 +65,7 @@ router.get('/getUserInfo', async (req, res) => {
     }
 
 });
+
 router.post('/signup', async (req, res) => {
     const body = req.body;
     let tempUsername = body.username;
