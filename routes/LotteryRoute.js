@@ -52,7 +52,7 @@ router.put('/setFaved', async (req, res) => {
 
 
 
-router.get('/getLotteriesOf', async (req, res) => {
+router.post('/getLotteriesOf', async (req, res) => {
     const authHeader = req.headers.authorization;
     const {category} = req.body;
 
