@@ -45,28 +45,35 @@ router.get('/getUserInfo', async (req, res) => {
             for(j = 0; j<lotteries2.length; j++) {
                 if(name === lotteries2[j].name){
                     lotteries2[j].isFaved = true;
+
+                    let user = await User.findOneAndUpdate({username: username}, {favs : user2.favs}, {
+                        new: true,
+                        upsert: true
+                    });
+
+                    res.json({user});
+                    return;
                 }
                 else{
                     lotteries2.splice(user2.favs[j],1);
+
+                    let user = await User.findOneAndUpdate({username: username}, {favs : user2.favs}, {
+                        new: true,
+                        upsert: true
+                    });
+
+                    res.json({user});
+                    return;
                 }
             }
         }
 
-
-        let user = await User.findOneAndUpdate({username: username}, {favs : lotteries2}, {
-            new: true,
-            upsert: true
-        });
-
-        res.json({user});
-        return;
 
     } else {
         res.json({message: 'Böyle bir kullanıcı bulunamadı.'});
     }
 
 });
-
 router.post('/signup', async (req, res) => {
     const body = req.body;
     let tempUsername = body.username;
