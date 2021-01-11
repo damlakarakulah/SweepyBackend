@@ -17,49 +17,37 @@ function contains(list, name){
 }
 
 router.put('/setFaved', async (req, res) => {
+    let {_id, isFaved} = req.body;
     const authHeader = req.headers.authorization;
-    const username = decodedToken.username;
-    const {_id,isFaved} = req.body;
-    const decodedToken = jwt.verify(authHeader, 'mero');
 
-    const user2 = await User.findOne({ username: username });
+    if (authHeader) {
+        const decodedToken = jwt.verify(authHeader, 'mero');
+        const username = decodedToken.username;
+        const user = await User.findOne({username: username});
 
-
-    if (user2) {
-        const tempLottery = await Lottery.findById(_id);
-        let lotteries2 = await user2.favs;
-
-        var i;
-        var j;
-        for (i = 0; i < lotteries2.length; i++) {
-            const name = lotteries2[i].name;
-            if(tempLottery.name === name) {
-              if (isFaved){
-                  lotteries2[i].isFaved = true;
-                  user2.favs.push(lotteries2[i]);
-                  break;
-              }
-
+        if (user) {
+            if (isFaved) {
+                const lottery = await Lottery.findOne({_id: _id});
+                lottery.isFaved = true;
+                user.favs.push(lottery);
+            } else {
+                const lottery = await Lottery.findOne({_id: _id});
+                const index = user.favs.indexOf(lottery);
+                user.favs.splice(index, 1);
             }
-            else {
-                lotteries2.splice(user2.favs[i],1);
-                break;
-            }
+        } else {
+            res.status(200).json({message: 'Unauthorized'});
         }
 
-        let user = await User.findOneAndUpdate({username: username}, {favs : user2.favs}, {
+
+        let user2 = await User.findOneAndUpdate({username: username}, {favs: user.favs}, {
             new: true,
             upsert: true
         });
-
-        res.json({user});
-
-
-    } else {
-        res.json({message: 'Böyle bir kullanıcı bulunamadı.'});
+        res.json(user2);
+        return;
     }
-
-});
+}
 
 
 
