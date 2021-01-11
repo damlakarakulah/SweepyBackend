@@ -6,43 +6,57 @@ const Lottery = require('./LotteryDocument');
 
 const router = express.Router();
 
-
+function contains(list, name){
+    var i;
+    for(i=0; i<list.length; i++){
+        if(list[i]._doc.name === name){
+            return true;
+        }
+    }
+    return false;
+}
 
 router.put('/setFaved', async (req, res) => {
-    const {_id, isFaved} = req.body;
     const authHeader = req.headers.authorization;
+    const {_id,isFaved} = req.body;
+    const decodedToken = jwt.verify(authHeader, 'mero');
+    const username = decodedToken.username;
 
-    if (authHeader) {
-        const decodedToken = jwt.verify(authHeader, 'mero');
-        const username = decodedToken.username;
-        const tempUser = await User.findOne({username: username});
 
+    const user2 = await User.findOne({ username: username });
+
+
+    if (user2) {
         const tempLottery = await Lottery.findById(_id);
+        let lotteries2 = await user2.favs;
 
-
-        if (tempUser) {
-            const tempList = tempUser.favs;
-            if(isFaved) {
-                if(tempLottery) {
-                    tempLottery.isFaved = true;
-                    tempList.push(tempLottery);
+        var i;
+        var j;
+        for (i = 0; i < lotteries2.length; i++) {
+            const name = lotteries2[i].name;
+            if (tempLottery._doc.name === name) {
+                if (isFaved === "false") {
+                    lotteries2.splice(i, 1);
+                    break;
                 }
             }
-            else {
-                if(tempLottery) {
-                    tempLottery.isFaved = false;
-                    tempList.splice(tempLottery, 1);
-                }
-            }
-            let user = await User.findOneAndUpdate({username: username}, {favs : tempList}, {
-                new: true,
-                upsert: true
-            });
-            res.json(user);
-            return;
         }
+
+        if(isFaved === "true") {
+            tempLottery._doc.isFaved = true;
+            lotteries2.push(tempLottery._doc);
+        }
+
+        let user = await User.findOneAndUpdate({username: username}, {favs : lotteries2}, {
+            new: true,
+            upsert: true
+        });
+
+        res.json(user);
+
+
     } else {
-        res.status(200).json({message: 'Unauthorized'});
+        res.json({message: 'Böyle bir kullanıcı bulunamadı.'});
     }
 
 });
