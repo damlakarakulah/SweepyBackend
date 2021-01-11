@@ -58,7 +58,7 @@ router.get('/getUserInfo', async (req, res) => {
                 lotteries2[i].isFaved = true;
             }
             else {
-                lotteries2.splice(i,1);
+                lotteries2.splice(user2.favs[i],1);
             }
         }
 
