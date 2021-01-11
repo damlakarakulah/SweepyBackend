@@ -16,6 +16,16 @@ function contains(list, name){
     return false;
 }
 
+function indexOfElement(list,element){
+    var i;
+    for(i = 0; i<list.length; i++){
+        if(list[i].name === element.name){
+            return i;
+        }
+    }
+    return -1;
+}
+
 router.put('/setFaved', async (req, res) => {
     let {_id, isFaved} = req.body;
     const authHeader = req.headers.authorization;
@@ -32,7 +42,7 @@ router.put('/setFaved', async (req, res) => {
                 user.favs.push(lottery);
             } else {
                 const lottery = await Lottery.findOne({_id: _id});
-                const index = user.favs.indexOf(lottery);
+                const index = indexOfElement(user.favs,lottery._doc);
                 user.favs.splice(index, 1);
             }
         } else {
