@@ -16,6 +16,17 @@ function contains(list, name){
     return false;
 }
 
+function contains2(list, name){
+    var i;
+    for(i=0; i<list.length; i++){
+        if(list[i].name === name){
+            return true;
+        }
+    }
+    return false;
+}
+
+
 function indexOfElement(list,element){
     var i;
     for(i = 0; i<list.length; i++){
@@ -69,25 +80,29 @@ router.post('/getLotteriesOf', async (req, res) => {
         const username = decodedToken.username;
 
         const user = await User.findOne({username: username})
-        let lotteries = await Lottery.find({category: category});
-        let lotteries2 = await user.favs;
+        if(user){
+            let userFavLotteries = await user.favs;
+            let lotteries = await Lottery.find({category: category});
 
-        var i;
-        var j;
-        for (i = 0; i < lotteries.length; i++) {
-            const name = lotteries[i].name;
-            for(j = 0; j<lotteries2.length; j++) {
-                if(name === user.favs[j].name){
+            var i;
+            for(i = 0; i < lotteries.length; i++){
+                if(contains2(userFavLotteries,lotteries[i]._doc.name)){
                     lotteries[i].isFaved = true;
                 }
+
                 else{
                     lotteries[i].isFaved = false;
                 }
+
             }
+            res.json({lotteries});
         }
-        res.json({lotteries});
-        return;
-    } else {
+        else{
+            res.status(200).json({message: 'Kullanıcı bulunamadı.'});
+        }
+
+    }
+    else {
         res.status(200).json({message: 'Unauthorized'});
     }
 });
@@ -109,22 +124,19 @@ router.get('/getAllLotteries', async (req, res) => {
         const user = await User.findOne({username: username})
 
         if (user) {
+            let userFavLotteries = await user.favs;
             let lotteries = await Lottery.find();
-            let lotteries2 = await user.favs;
 
             var i;
-            var j;
-            for (i = 0; i < lotteries.length; i++) {
-                const name = lotteries[i].name;
-                for(j = 0; j<lotteries2.length; j++) {
-                    if(name === user.favs[j].name){
-                        lotteries[i].isFaved = true;
-                    }
-                    else{
-                        lotteries[i].isFaved = false;
-
-                    }
+            for(i = 0; i < lotteries.length; i++){
+                if(contains2(userFavLotteries,lotteries[i]._doc.name)){
+                    lotteries[i].isFaved = true;
                 }
+
+                else{
+                    lotteries[i].isFaved = false;
+                }
+
             }
 
             res.json({lotteries});
