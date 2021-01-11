@@ -36,7 +36,7 @@ router.put('/setFaved', async (req, res) => {
             const name = lotteries2[i].name;
             if (tempLottery._doc.name === name) {
                 if (isFaved === "false") {
-                    lotteries2.splice(i, 1);
+                    lotteries2.splice(tempLottery._doc, 1);
                     break;
                 }
             }
