@@ -47,7 +47,8 @@ router.put('/setFaved', async (req, res) => {
         res.json(user2);
         return;
     }
-}
+});
+
 
 
 
