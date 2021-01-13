@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Cors = require('cors');
-
+const checkIfAuthenticated = require('./AuthUtil');
 
 const userRoute = require('./routes/UserRoute.js');
 const lotteryRoute = require('./routes/LotteryRoute.js');
@@ -16,7 +16,9 @@ app.use(Cors());
 app.use('/user', userRoute);
 app.use('/lottery', lotteryRoute);
 
-
+app.get('/test', checkIfAuthenticated, (req, res) => {
+    res.json(req.user);
+});
 
 app.get('/', (req, res) => {
     return res.json({message: 'Hello World'});
