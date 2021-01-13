@@ -12,7 +12,7 @@ router.post('/login', async (req, res) => {
     if (user && user.password === password) {
         const token = jwt.sign({ username: user.username }, 'mero');
         res.json({
-            message: "Giriş Yapıldı",
+            message: "Giriş Yapıldı :)",
             token: token,
             status: 1
         });
