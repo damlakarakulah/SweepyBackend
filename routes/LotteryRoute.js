@@ -147,7 +147,7 @@ router.get('/getAllLotteriesNoLogin',  async (req, res) => {
 
 });
 
-router.post('/getLotteriesOfNoLogin', checkIfAuthenticated, async (req, res) => {
+router.post('/getLotteriesOfNoLogin', async (req, res) => {
     const {category} = req.body;
     let lotteries = await Lottery.find({category: category});
 
