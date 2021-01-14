@@ -1,29 +1,11 @@
 const express = require('express');
 const User = require('./UserDocument');
 const Lottery = require('./LotteryDocument');
-
 const router = express.Router();
 var jwt = require('jsonwebtoken');
+const checkIfAuthenticated = require('./AuthUtil');
 
-router.post('/login', async (req, res) => {
-    const {username, password} = req.body;
 
-    const user = await User.findOne({ username: username });
-    if (user && user.password === password) {
-        const token = jwt.sign({ username: user.username }, 'mero');
-        res.json({
-            message: "Giriş Yapıldıııı",
-            token: token,
-            status: 1
-        });
-    } else {
-        res.status(200).json({
-            message: 'Kullanıcı adınız veya şifreniz yanlış :(',
-            status: 0
-        });
-    }
-
-});
 
 function contains(list, name){
     var i;
@@ -37,71 +19,46 @@ function contains(list, name){
 
 
 
-router.get('/getUserInfo', async (req, res) => {
-    const authHeader = req.headers.authorization;
+router.get('/getUserInfo', checkIfAuthenticated, async (req, res) => {
 
-    const decodedToken = jwt.verify(authHeader, 'mero');
-    const username = decodedToken.username;
+    const user_id_temp = await req.user.user_id;
+    const userToFind = await User.findOne({user_id : user_id_temp});
 
-    const user2 = await User.findOne({ username: username });
-
-
-    if (user2) {
-        let lotteries = await Lottery.find();
-        let lotteries2 = await user2.favs;
-
-        var i;
-        var j;
-        for (i = 0; i < lotteries2.length; i++) {
-            const name = lotteries2[i].name;
-            if(contains(lotteries, name)){
-                lotteries2[i].isFaved = true;
-            }
-            else {
-                lotteries2.splice(i,1);
-            }
-        }
-
-        let user = await User.findOneAndUpdate({username: username}, {favs : user2.favs}, {
-            new: true,
-            upsert: true
-        });
-
-        res.json({user});
-
-
-    } else {
+    if (!userToFind) {
         res.json({message: 'Böyle bir kullanıcı bulunamadı.'});
+        return;
+
     }
+
+    let lotteries = await Lottery.find();
+    let favLotteries = await userToFind.favs;
+
+    var i;
+    var j;
+    for (i = 0; i < favLotteries.length; i++) {
+        const name = favLotteries[i].name;
+        if (contains(lotteries, name)) {
+            favLotteries[i].isFaved = true;
+        } else {
+            favLotteries.splice(i, 1);
+        }
+    }
+
+    let userUpdated = await User.findOneAndUpdate({user_id: user_id_temp}, {favs: userToFind.favs}, {
+        new: true,
+        upsert: true
+    });
+
+    res.json({user: userUpdated});
 
 });
-router.post('/signup', async (req, res) => {
-    const body = req.body;
-    let tempUsername = body.username;
-    let tempEmail = body.email;
+router.post('/signup', checkIfAuthenticated, async (req, res) => {
 
-    let user = await User.findOne({username: tempUsername});
-    let user2 = await User.findOne({email: tempEmail});
-    if(user){
-        res.json({
-            message: "Bu kullanıcı adı zaten mevcut.",
-            status: 0
-        });
-    }
-    else if(user2){
-        res.json({
-            message: "Bu e-mail ile eşleşmiş bir kullanıcı zaten mevcut.",
-            status: 0
-        });
-    }
-    else{
-        const userDoc = new User({username: tempUsername, email: body.email, password: body.password, favs: []});
-        userDoc.save();
-        res.json({
-            message: "Kayıt oluşturuldu.",
-            status: 1
-        });
-    }
+    const user_id_temp = await req.user.user_id;
+    const userDoc = new User({user_id: user_id_temp, favs: []});
+    userDoc.save();
+    res.json({message: 'Kayıt oluşturuldu.', status: 1});
+
 
 });
 

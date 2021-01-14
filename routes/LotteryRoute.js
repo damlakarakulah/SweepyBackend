@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 var jwt = require('jsonwebtoken');
 const User = require('./UserDocument');
 const Lottery = require('./LotteryDocument');
+const checkIfAuthenticated = require('./AuthUtil');
+
 
 const router = express.Router();
 
@@ -37,114 +39,95 @@ function indexOfElement(list,element){
     return -1;
 }
 
-router.put('/setFaved', async (req, res) => {
-    let {_id, isFaved} = req.body;
-    const authHeader = req.headers.authorization;
+router.put('/setFaved',  checkIfAuthenticated, async (req, res) => {
+        let {_id, isFaved} = req.body;
 
-    if (authHeader) {
-        const decodedToken = jwt.verify(authHeader, 'mero');
-        const username = decodedToken.username;
-        const user = await User.findOne({username: username});
+    const user_id_temp = await req.user.user_id;
+    const user = await User.findOne({user_id : user_id_temp});
 
-        if (user) {
-            if (isFaved) {
-                const lottery = await Lottery.findOne({_id: _id});
-                lottery.isFaved = true;
-                user.favs.push(lottery);
-            } else {
-                const lottery = await Lottery.findOne({_id: _id});
-                const index = indexOfElement(user.favs,lottery._doc);
-                user.favs.splice(index, 1);
-            }
+        if (!user) {
+            res.status(200).json({message: 'Böyle bir kullanıcı bulunamadı.'});
+            return;
+        }
+
+        if (isFaved) {
+            const lottery = await Lottery.findOne({_id: _id});
+            lottery.isFaved = true;
+            user.favs.push(lottery);
         } else {
-            res.status(200).json({message: 'Unauthorized'});
+            const lottery = await Lottery.findOne({_id: _id});
+            const index = indexOfElement(user.favs, lottery._doc);
+            user.favs.splice(index, 1);
         }
 
 
-        let user2 = await User.findOneAndUpdate({username: username}, {favs: user.favs}, {
+        let user2 = await User.findOneAndUpdate({user_id : user_id_temp}, {favs: user.favs}, {
             new: true,
             upsert: true
         });
         res.json(user2);
-        return;
-    }
+
 });
 
 
-router.post('/getLotteriesOf', async (req, res) => {
-    const authHeader = req.headers.authorization;
-    const {category} = req.body;
+router.post('/getLotteriesOf', checkIfAuthenticated, async (req, res) => {
+        const {category} = req.body;
 
-    if (authHeader) {
-        const decodedToken = jwt.verify(authHeader, 'mero');
-        const username = decodedToken.username;
+        const user_id_temp = await req.user.user_id;
+        const user = await User.findOne({user_id : user_id_temp});
 
-        const user = await User.findOne({username: username})
-        if(user){
-            let userFavLotteries = await user.favs;
-            let lotteries = await Lottery.find({category: category});
-
-            var i;
-            for(i = 0; i < lotteries.length; i++){
-                if(contains2(userFavLotteries,lotteries[i]._doc.name)){
-                    lotteries[i].isFaved = true;
-                }
-
-                else{
-                    lotteries[i].isFaved = false;
-                }
-
-            }
-            res.json({lotteries});
-        }
-        else{
-            res.status(200).json({message: 'Kullanıcı bulunamadı.'});
+        if (!user) {
+            res.status(200).json({message: 'Böyle bir kullanıcı bulunamadı.'});
+            return;
         }
 
-    }
-    else {
-        res.status(200).json({message: 'Unauthorized'});
-    }
+        let userFavLotteries = await user.favs;
+        let lotteries = await Lottery.find({category: category});
+
+        var i;
+        for (i = 0; i < lotteries.length; i++) {
+            lotteries[i].isFaved = contains2(userFavLotteries, lotteries[i]._doc.name);
+
+        }
+        res.json({lotteries});
+
+
 });
 
 router.post('/post', (req, res) => {
-    const body = req.body;
-    const lottery = new Lottery ({ name: body.name,category: body.category, link: body.link, photo_link: body.photo_link, isFaved: body.isFaved });
-    lottery.save();
-    res.json(body);
+        const body = req.body;
+        const lottery = new Lottery({
+            name: body.name,
+            category: body.category,
+            link: body.link,
+            photo_link: body.photo_link,
+            isFaved: body.isFaved
+        });
+        lottery.save();
+        res.json(body);
 });
 
-router.get('/getAllLotteries', async (req, res) => {
-    const authHeader = req.headers.authorization;
+router.get('/getAllLotteries', checkIfAuthenticated, async (req, res) => {
 
-    if (authHeader) {
-        const decodedToken = jwt.verify(authHeader, 'mero');
-        const username = decodedToken.username;
+    const user_id_temp = await req.user.user_id;
+    const user = await User.findOne({user_id : user_id_temp});
 
-        const user = await User.findOne({username: username})
-
-        if (user) {
-            let userFavLotteries = await user.favs;
-            let lotteries = await Lottery.find();
-
-            var i;
-            for(i = 0; i < lotteries.length; i++){
-                if(contains2(userFavLotteries,lotteries[i]._doc.name)){
-                    lotteries[i].isFaved = true;
-                }
-
-                else{
-                    lotteries[i].isFaved = false;
-                }
-
-            }
-
-            res.json({lotteries});
+        if (!user) {
+            res.status(200).json({message: 'Böyle bir kullanıcı bulunamadı.'});
             return;
         }
-    } else {
-        res.status(200).json({message: 'Unauthorized'});
-    }
+
+        let userFavLotteries = await user.favs;
+        let lotteries = await Lottery.find();
+
+        var i;
+        for (i = 0; i < lotteries.length; i++) {
+            lotteries[i].isFaved = contains2(userFavLotteries, lotteries[i]._doc.name);
+
+        }
+        res.json({lotteries});
+
+
 });
 
 

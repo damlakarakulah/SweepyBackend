@@ -24,8 +24,8 @@ const checkIfAuthenticated = (req, res, next) => {
             return next();
         } catch (e) {
             return res
-                .status(401)
-                .send({ error: 'You are not authorized to make this request' });
+                .status(200)
+                .send({ message: 'Yetkiniz yoktur.' , status : 0});
         }
     });
 };
