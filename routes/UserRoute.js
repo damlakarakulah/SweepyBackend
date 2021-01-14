@@ -21,7 +21,7 @@ function contains(list, name){
 
 router.get('/getUserInfo', checkIfAuthenticated, async (req, res) => {
 
-    const user_id_temp = await req.user.user_id;
+    const user_id_temp = req.user.user_id;
     const userToFind = await User.findOne({user_id : user_id_temp});
 
     if (!userToFind) {
@@ -54,9 +54,10 @@ router.get('/getUserInfo', checkIfAuthenticated, async (req, res) => {
 });
 router.post('/signup', checkIfAuthenticated, async (req, res) => {
 
-    const user_id_temp = await req.user.user_id;
-    const userDoc = new User({user_id: user_id_temp, favs: []});
-    userDoc.save();
+    const user_id_temp =  req.user.user_id;
+    const user_name_surname =  req.body.name;
+    const userDoc = new User({user_id: user_id_temp, name: user_name_surname, favs: []});
+    await userDoc.save();
     res.json({message: 'Kayıt oluşturuldu.', status: 1});
 
 
