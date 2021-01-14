@@ -131,4 +131,35 @@ router.get('/getAllLotteries', checkIfAuthenticated, async (req, res) => {
 });
 
 
+
+router.get('/getAllLotteriesNoLogin',  async (req, res) => {
+
+
+    let lotteries = await Lottery.find();
+
+    var i;
+    for (i = 0; i < lotteries.length; i++) {
+        lotteries[i].isFaved = false;
+
+    }
+    res.json({lotteries});
+
+
+});
+
+router.post('/getLotteriesOfNoLogin', checkIfAuthenticated, async (req, res) => {
+    const {category} = req.body;
+    let lotteries = await Lottery.find({category: category});
+
+    var i;
+    for (i = 0; i < lotteries.length; i++) {
+        lotteries[i].isFaved = false;
+
+    }
+    res.json({lotteries});
+
+
+});
+
+
 module.exports = router;
