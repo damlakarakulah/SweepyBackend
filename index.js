@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Cors = require('cors');
-const checkIfAuthenticated = require('./AuthUtil');
+const checkIfAuthenticated = require('./routes/AuthUtil');
 
 const userRoute = require('./routes/UserRoute.js');
 const lotteryRoute = require('./routes/LotteryRoute.js');
