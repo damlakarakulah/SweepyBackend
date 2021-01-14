@@ -56,6 +56,11 @@ router.post('/signup', checkIfAuthenticated, async (req, res) => {
 
     const user_id_temp =  req.user.user_id;
     const user_name_surname =  req.body.name;
+    const user = await User.findOne({user_id : user_id_temp });
+    if(user){
+        res.json({message: 'Böyle bir kullanıcı zaten var.', status: 0});
+        return;
+    }
     const userDoc = new User({user_id: user_id_temp, name: user_name_surname, favs: []});
     await userDoc.save();
     res.json({message: 'Kayıt oluşturuldu.', status: 1});
