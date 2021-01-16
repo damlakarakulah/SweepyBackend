@@ -10,7 +10,7 @@ const checkIfAuthenticated = require('./AuthUtil');
 function contains(list, id){
     var i;
     for(i=0; i<list.length; i++){
-        if(list[i]._doc.name === id){
+        if(list[i]._doc._id.toString() === id){
             return true;
         }
     }
