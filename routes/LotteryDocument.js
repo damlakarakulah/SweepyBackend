@@ -5,7 +5,7 @@ const LotterySchema = new mongoose.Schema({
     category: 'string',
     link: 'string',
     photo_link: 'string',
-    isFaved: 'boolean'
+    isFaved: 'boolean',
 });
 
 const Lottery = mongoose.model('Lottery', LotterySchema);
