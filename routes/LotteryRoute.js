@@ -139,7 +139,7 @@ router.get('/getAllLotteries', checkIfAuthenticated, async (req, res) => {
 
         var i;
         for (i = 0; i < lotteries.length; i++) {
-            lotteries[i].isFaved = contains2(userFavLotteries, lotteries[i]._doc.id_.toString());
+            lotteries[i].isFaved = contains2(userFavLotteries, lotteries[i]._doc._id.toString());
 
         }
         res.json({lotteries});
