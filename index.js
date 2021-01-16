@@ -6,6 +6,7 @@ const checkIfAuthenticated = require('./routes/AuthUtil');
 
 const userRoute = require('./routes/UserRoute.js');
 const lotteryRoute = require('./routes/LotteryRoute.js');
+const toptenRoute = require('./routes/TopTenRoute.js');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(bodyParser.json());
 app.use(Cors());
 app.use('/user', userRoute);
 app.use('/lottery', lotteryRoute);
+app.use('/topten', toptenRoute)
 
 app.get('/test', checkIfAuthenticated, (req, res) => {
     res.json(req.user);

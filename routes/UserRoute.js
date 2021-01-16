@@ -7,10 +7,10 @@ const checkIfAuthenticated = require('./AuthUtil');
 
 
 
-function contains(list, name){
+function contains(list, id){
     var i;
     for(i=0; i<list.length; i++){
-        if(list[i]._doc.name === name){
+        if(list[i]._doc.name === id){
             return true;
         }
     }
@@ -36,8 +36,8 @@ router.get('/getUserInfo', checkIfAuthenticated, async (req, res) => {
     var i;
     var j;
     for (i = 0; i < favLotteries.length; i++) {
-        const name = favLotteries[i].name;
-        if (contains(lotteries, name)) {
+        const id = favLotteries[i]._id.toString();
+        if (contains(lotteries, id)) {
             favLotteries[i].isFaved = true;
         } else {
             favLotteries.splice(i, 1);

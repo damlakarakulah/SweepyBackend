@@ -8,20 +8,22 @@ const checkIfAuthenticated = require('./AuthUtil');
 
 const router = express.Router();
 
-function contains(list, name){
+const TopTen = require('./TopTenDocument');
+
+function contains3(list, id){
     var i;
     for(i=0; i<list.length; i++){
-        if(list[i]._doc.name === name){
+        if(list[i] === id.toString()){
             return true;
         }
     }
     return false;
 }
 
-function contains2(list, name){
+function contains2(list, id){
     var i;
     for(i=0; i<list.length; i++){
-        if(list[i].name === name){
+        if(list[i]._id.toString() === id){
             return true;
         }
     }
@@ -32,7 +34,7 @@ function contains2(list, name){
 function indexOfElement(list,element){
     var i;
     for(i = 0; i<list.length; i++){
-        if(list[i].name === element.name){
+        if(list[i]._id.toString() === element._id.toString()){
             return i;
         }
     }
@@ -86,7 +88,7 @@ router.post('/getLotteriesOf', checkIfAuthenticated, async (req, res) => {
 
         var i;
         for (i = 0; i < lotteries.length; i++) {
-            lotteries[i].isFaved = contains2(userFavLotteries, lotteries[i]._doc.name);
+            lotteries[i].isFaved = contains2(userFavLotteries, lotteries[i]._doc._id.toString());
 
         }
         res.json({lotteries});
@@ -118,11 +120,26 @@ router.get('/getAllLotteries', checkIfAuthenticated, async (req, res) => {
         }
 
         let userFavLotteries = await user.favs;
-        let lotteries = await Lottery.find();
+        let lotteriesAll = await Lottery.find();
+        let lotteriesTopTenIdsObjectList = await TopTen.find();
+
+        let lotteriesTopTenIdsObject = lotteriesTopTenIdsObjectList[0];
+        let lotteriesTopTenIds = lotteriesTopTenIdsObject.topTenIds;
+
+        let lotteries = [];
+        var j;
+        for (j = 0; j < lotteriesAll.length; j++) {
+            if(contains3(lotteriesTopTenIds, lotteriesAll[j]._id)){
+                lotteries.push(lotteriesAll[j])
+            }
+            if(lotteries.length === 10){
+                break;
+            }
+        }
 
         var i;
         for (i = 0; i < lotteries.length; i++) {
-            lotteries[i].isFaved = contains2(userFavLotteries, lotteries[i]._doc.name);
+            lotteries[i].isFaved = contains2(userFavLotteries, lotteries[i]._doc.id_.toString());
 
         }
         res.json({lotteries});
@@ -132,10 +149,26 @@ router.get('/getAllLotteries', checkIfAuthenticated, async (req, res) => {
 
 
 
+
 router.get('/getAllLotteriesNoLogin',  async (req, res) => {
 
 
-    let lotteries = await Lottery.find();
+    let lotteriesAll = await Lottery.find();
+    let lotteriesTopTenIdsObjectList = await TopTen.find();
+
+    let lotteriesTopTenIdsObject = lotteriesTopTenIdsObjectList[0];
+    let lotteriesTopTenIds = lotteriesTopTenIdsObject.topTenIds;
+
+    let lotteries = [];
+    var j;
+    for (j = 0; j < lotteriesAll.length; j++) {
+        if(contains3(lotteriesTopTenIds, lotteriesAll[j]._id)){
+            lotteries.push(lotteriesAll[j])
+        }
+        if(lotteries.length === 10){
+            break;
+        }
+    }
 
     var i;
     for (i = 0; i < lotteries.length; i++) {
@@ -143,9 +176,9 @@ router.get('/getAllLotteriesNoLogin',  async (req, res) => {
 
     }
     res.json({lotteries});
-
-
 });
+
+
 
 router.post('/getLotteriesOfNoLogin', async (req, res) => {
     const {category} = req.body;
