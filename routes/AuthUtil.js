@@ -24,7 +24,7 @@ const checkIfAuthenticated = (req, res, next) => {
             return next();
         } catch (e) {
             return res
-                .status(200)
+                .status(401)
                 .send({ message: 'Yetkiniz yoktur.' , status : 0});
         }
     });
